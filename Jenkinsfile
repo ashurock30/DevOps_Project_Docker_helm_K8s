@@ -92,6 +92,9 @@ pipeline{
         }
 
         stage('Docker Build & Docker Push to Nexus'){
+            when {
+                environment name: 'Nexus_Enabled', value: 'true'
+            }
             steps{
                 script{
                     withCredentials([usernamePassword(credentialsId: 'Nexus-Test', passwordVariable: 'Password', usernameVariable: 'Username')]) {
