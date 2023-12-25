@@ -86,6 +86,8 @@ pipeline{
                 }
             }
         }
+
+        stage('Docker Build & Docker Push to Nexus')
     }
         
 }
