@@ -96,9 +96,9 @@ pipeline{
                 script{
                     withCredentials([usernamePassword(credentialsId: 'Nexus-Test', passwordVariable: 'Password', usernameVariable: 'Username')]) {
                         sh '''
-                         docker build -t ${env.Nexus_IP}:8083/springapp:${VERSION} .
+                         docker build -t ${Nexus_IP}:8083/springapp:${VERSION} .
                          docker login -u ${Username} -p {Password} ${env.Nexus_IP}:8083
-                         docker push ${env.Nexus_IP}:8083/springapp:${VERSION}
+                         docker push ${Nexus_IP}:8083/springapp:${VERSION}
                         '''
                     }
                 }
