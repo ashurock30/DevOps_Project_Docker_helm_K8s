@@ -4,6 +4,10 @@ pipeline{
         label 'DEVLINUX'
     } 
 
+    environment {
+        VERSION = "${env.BUILD_ID}"
+    }
+
     parameters {
         booleanParam description: 'Set to True if you want to perform the SonarQube Scan & Quality Gate Check', name: 'Sonarqube_Scan'
         booleanParam description: 'Set to True if you want to Used Nexus', name: 'Nexus_Enabled'
@@ -87,7 +91,19 @@ pipeline{
             }
         }
 
-        stage('Docker Build & Docker Push to Nexus')
+        stage('Docker Build & Docker Push to Nexus'){
+            steps{
+                script{
+                    withCredentials([usernamePassword(credentialsId: 'Nexus-Test', passwordVariable: 'Password', usernameVariable: 'Username')]) {
+                        sh '''
+                         docker build -t ${env.Nexus_IP}:8083/springapp:${VERSION} .
+                         docker login -u ${Username} -p {Password} ${env.Nexus_IP}:8083
+                         docker push ${env.Nexus_IP}:8083/springapp:${VERSION}
+                        '''
+                    }
+                }
+            }
+        }
     }
         
 }
