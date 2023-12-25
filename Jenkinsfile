@@ -99,6 +99,7 @@ pipeline{
                          docker build -t ${Nexus_IP}:8083/springapp:${VERSION} .
                          docker login -u ${Username} -p ${Password} ${Nexus_IP}:8083
                          docker push ${Nexus_IP}:8083/springapp:${VERSION}
+                         docker rmi ${Nexus_IP}:8083/springapp:${VERSION}
                         '''
                     }
                 }
