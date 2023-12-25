@@ -6,6 +6,7 @@ pipeline{
 
     parameters {
         booleanParam description: 'Set to True if you want to perform the SonarQube Scan & Quality Gate Check', name: 'Sonarqube_Scan'
+        booleanParam description: 'Set to True if you want to Used Nexus', name: 'Nexus_Enabled'
     }
     
     stages {
@@ -15,10 +16,25 @@ pipeline{
             }
         }
 
+        stage('Stage To Decide to use Nexus or Not') {
+            steps{
+                script {
+                    if (params.Nexus_Enabled) {
+                        env.MAVEN_SETTINGS_CONFIG = 'maven-settings'
+                        echo 'Using Nexus......'
+                    }
+                    else {
+                        env.MAVEN_SETTINGS_CONFIG = ''
+                        echo "Not Using Nexus......"
+                    }
+                }
+            }
+        }
+
         stage('UNIT testing'){
             steps{ 
                 script{
-                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: '', traceability: true) {
+                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: "${MAVEN_SETTINGS_CONFIG}", traceability: true) {
                         sh 'mvn test'
                     }
                 }
@@ -28,7 +44,7 @@ pipeline{
         stage('Integration testing'){
             steps{
                 script{
-                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: '', traceability: true) {
+                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: "${MAVEN_SETTINGS_CONFIG}", traceability: true) {
                         sh 'mvn verify -DskipUnitTests'
                     }
                 }
@@ -38,7 +54,7 @@ pipeline{
         stage('Maven build'){
             steps{ 
                 script{
-                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: '', traceability: true) {
+                    withMaven(globalMavenSettingsConfig: '', jdk: 'JDK11', maven: 'Maven-3.9.5', mavenSettingsConfig: "${MAVEN_SETTINGS_CONFIG}", traceability: true) {
                         sh 'mvn clean install'
                     }
                 }
